@@ -1,4 +1,4 @@
-package com.invertase.rnfirebasestarter;
+package com.company.realtimechat;
 
 import android.app.Application;
 

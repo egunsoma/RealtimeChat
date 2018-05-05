@@ -64,10 +64,14 @@ export default class ConversationListScreen extends Component {
         }
       })
   }
+  
+  onConversationPress(conversationId) {
+    Actions.conversation_messages({ conversationId });
+  }
 
   renderConversation({item}) {
     return (
-      <Text>{item.name}</Text>
+      <Button title={item.lastMessage.data} onPress={this.onConversationPress.bind(this, item.key)} />
     ) 
   }
 

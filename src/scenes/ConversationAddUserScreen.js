@@ -1,12 +1,120 @@
 import React, { Component } from 'react';
 import {
- Text
+ Text, View, Button, FlatList, ActivityIndicator, TextInput
 } from 'react-native';
+import { Actions } from 'react-native-router-flux';
+import firebase from 'react-native-firebase';
+import Queue from 'promise-queue';
+
+import _ from 'lodash';
 
 export default class ConversationAddUserScreen extends Component {
+  
+  state = {
+    members: [],
+    loading: true,
+    searchKey: '',
+    searchResult: [],
+    promiseQueue: new Queue(1, Infinity),
+  }
+
+  componentWillMount() {
+    this.unsubscribe = firebase.firestore().collection('conversations')
+      .doc(this.props.conversationId)
+      .onSnapshot((doc) => {
+        const userPromiseList = [];
+
+        _.forEach(doc.data().members, (_value, memberId) => {
+          console.log(_value, memberId);
+          userPromiseList.push(firebase.firestore().collection('users').doc(memberId).get())
+        })
+
+        Promise.all(userPromiseList).then((membersDocList) => {
+          const members = _.map(membersDocList, (doc) => {
+            return {...doc.data(), key: doc.id};
+          })
+          console.log(members)
+          this.setState({
+            members, loading: false
+          })
+        })
+      });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
+  isMember(userId) {
+    console.log(userId, this.state.members)
+    return _.some(this.state.members, ['key', userId]);
+  }
+
+  search(searchKey) {
+    this.state.promiseQueue.add(() => {
+      var strSearch = searchKey; 
+      var strlength = strSearch.length; 
+      var strFrontCode = strSearch.slice(0, strlength-1); 
+      var strEndCode = strSearch.slice(strlength-1, strSearch.length); 
+      var startcode = strSearch; 
+      var endcode= strFrontCode + String.fromCharCode(strEndCode.charCodeAt(0) + 1);
+
+      return firebase.firestore().collection('users')
+        .where('displayName', '>=', startcode)
+        .where('displayName', '<', endcode).get();
+    })
+    .then((querySnapshot) => {
+      const searchResult = [];
+      querySnapshot.forEach((doc) => {
+        const { name, lastMessage } = doc.data();
+        const item = { 
+          key: doc.id,
+          ...doc.data()
+        };
+        searchResult.push(item);
+      });
+      this.setState({ 
+        searchResult,
+      });
+    })
+  }
+
+  handleInput(searchKey) {
+    this.setState({ searchKey });
+    this.search(searchKey);
+  }
+
+  renderUser({item}) {
+    return (
+      <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+        <Text>{item.displayName}</Text>
+        {
+          this.isMember(item.key) ? 
+          <Text>Member</Text> :
+          <Button title="Add" onPress={() => {}} />
+        }
+      </View>
+    ) 
+  }
+
   render() {
     return (
-      <Text>Test</Text>
+      <View>
+        <TextInput
+          placeholder={'Email'}
+          onChangeText={this.handleInput.bind(this)}
+          // value={this.state.searchKey}
+        />
+      {
+        this.state.loading ? 
+        <ActivityIndicator /> :
+        <FlatList
+          data={this.state.searchResult}
+          extraData={this.state}
+          renderItem={this.renderUser.bind(this)}
+        />
+      }
+    </View>
     );
   }
 }

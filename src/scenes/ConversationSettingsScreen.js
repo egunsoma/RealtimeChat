@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import {
- Text, View, Button, FlatList
+ Text, View, Button, FlatList, ActivityIndicator
 } from 'react-native';
+import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
 import _ from 'lodash';
 
 export default class ConversationSettingsScreen extends Component {
   
   state = {
-    members: []
+    members: [],
+    loading: true
   }
 
   componentWillMount() {
@@ -28,7 +30,7 @@ export default class ConversationSettingsScreen extends Component {
           })
           console.log(members)
           this.setState({
-            members
+            members, loading: false
           })
         })
       });
@@ -47,16 +49,16 @@ export default class ConversationSettingsScreen extends Component {
   render() {
     return (
       <View>
-      {
-        this.state.loading ? 
-        <ActivityIndicator /> :
-        <FlatList
-          data={this.state.members}
-          extraData={this.state}
-          renderItem={this.renderMember.bind(this)}
-        />
-      }
-      <Button title="Add User" onPress={() => {}} />
+        {
+          this.state.loading ? 
+          <ActivityIndicator /> :
+          <FlatList
+            data={this.state.members}
+            extraData={this.state}
+            renderItem={this.renderMember.bind(this)}
+          />
+        }
+      <Button title="Add User" onPress={() => Actions.conversation_add_user({ conversationId: this.props.conversationId})} />
       <Button title="Leave Conversation" onPress={() => {}} />
     </View>
     );

@@ -40,6 +40,22 @@ export default class ConversationSettingsScreen extends Component {
     this.unsubscribe();
   }
 
+  onLeaveButtonPress(userId) {
+    const ref = firebase.firestore().collection('conversations').doc(this.props.conversationId);
+     
+    firebase.firestore().runTransaction(function(transaction) {
+        return transaction.get(ref).then(function(doc) {
+            console.log(doc.data().members)
+            var newMembers = _.omit(doc.data().members, firebase.auth().currentUser.uid)
+            console.log(newMembers)
+            transaction.update(ref, { members: newMembers });
+        });
+    }).then(() => {
+      Actions.conversation_list({ type: 'reset'});
+    })
+    
+  }
+
   renderMember({item}) {
     return (
       <Text>{item.displayName}</Text>
@@ -59,7 +75,7 @@ export default class ConversationSettingsScreen extends Component {
           />
         }
       <Button title="Add User" onPress={() => Actions.conversation_add_user({ conversationId: this.props.conversationId})} />
-      <Button title="Leave Conversation" onPress={() => {}} />
+      <Button title="Leave Conversation" onPress={this.onLeaveButtonPress.bind(this)} />
     </View>
     );
   }

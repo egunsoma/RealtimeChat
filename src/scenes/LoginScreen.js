@@ -48,8 +48,10 @@ export default class LoginScreen extends Component {
     this.setState({ loading: true });
 
     firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
-      .then(()=> {
-        console.log('registration_email');
+      .then((user)=> {
+        firebase.firestore().collection('users').doc(user.uid).set({
+          displayName: user.email
+        })
       })
       .catch((err) => {
         this.setState({ loading: false });

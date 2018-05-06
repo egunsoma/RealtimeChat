@@ -27,7 +27,7 @@ export default class ConversationMessagesScreen extends Component {
 
   fromGiftedMessage(giftedMessage) {
     return {
-      timestamp: giftedMessage[0].createdAt,
+      timestamp: giftedMessage[0].createdAt.getTime(),
       senderId: giftedMessage[0].user._id,
       type: 'text',
       data: giftedMessage[0].text
@@ -38,7 +38,7 @@ export default class ConversationMessagesScreen extends Component {
     return {
       _id: firestoreMessage.id,
       text: firestoreMessage.data().data,
-      createdAt: firestoreMessage.data().timestamp,
+      createdAt: new Date(firestoreMessage.data().timestamp),
       user: {
         _id: firestoreMessage.data().senderId
       }
@@ -80,7 +80,7 @@ export default class ConversationMessagesScreen extends Component {
         // Creating new Members List  
         var newMembers = {};
         _.forEach(doc.data().members, (value, key) => {
-          newMembers = { ...newMembers, [key]: firestoreMessage.timestamp.getTime()}
+          newMembers = { ...newMembers, [key]: firestoreMessage.timestamp}
         })
 
         transaction.update(cRef, { 

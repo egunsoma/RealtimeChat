@@ -84,6 +84,21 @@ export default class ConversationAddUserScreen extends Component {
     this.search(searchKey);
   }
 
+  onAddButtonPress(userId) {
+    const ref = firebase.firestore().collection('conversations').doc(this.props.conversationId);
+     
+    firebase.firestore().runTransaction(function(transaction) {
+        return transaction.get(ref).then(function(doc) {
+            var newMembers = { 
+                ...doc.data().members, 
+                [userId]: doc.data().lastMessage.timestamp
+            };
+            transaction.update(ref, { members: newMembers });
+        });
+    })
+    
+  }
+
   renderUser({item}) {
     return (
       <View style={{ flexDirection: 'row', alignItems: 'center'}}>
@@ -91,7 +106,7 @@ export default class ConversationAddUserScreen extends Component {
         {
           this.isMember(item.key) ? 
           <Text>Member</Text> :
-          <Button title="Add" onPress={() => {}} />
+          <Button title="Add" onPress={this.onAddButtonPress.bind(this, item.key)} />
         }
       </View>
     ) 

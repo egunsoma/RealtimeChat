@@ -5,6 +5,7 @@ import {
 import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
 import Queue from 'promise-queue';
+import { Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction , Searchbar} from 'react-native-paper';
 
 import _ from 'lodash';
 
@@ -115,11 +116,19 @@ export default class ConversationAddUserScreen extends Component {
   render() {
     return (
       <View>
-        <TextInput
-          placeholder={'Email'}
-          onChangeText={this.handleInput.bind(this)}
-          // value={this.state.searchKey}
+      <Toolbar>
+        <ToolbarBackAction
+          onPress={() => Actions.pop()}
         />
+        <ToolbarContent
+          title="Add User"
+        />
+      </Toolbar>
+      <Searchbar
+        placeholder="Search"
+        onChangeText={this.handleInput.bind(this)}
+        value={this.state.searchKey}
+      />
       {
         this.state.loading ? 
         <ActivityIndicator /> :

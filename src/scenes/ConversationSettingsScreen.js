@@ -5,6 +5,8 @@ import {
 import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
 import _ from 'lodash';
+import { Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction } from 'react-native-paper';
+
 
 export default class ConversationSettingsScreen extends Component {
   
@@ -65,6 +67,14 @@ export default class ConversationSettingsScreen extends Component {
   render() {
     return (
       <View>
+      <Toolbar>
+        <ToolbarBackAction
+          onPress={() => Actions.pop()}
+        />
+        <ToolbarContent
+          title="Settings"
+        />
+      </Toolbar>
         {
           this.state.loading ? 
           <ActivityIndicator /> :

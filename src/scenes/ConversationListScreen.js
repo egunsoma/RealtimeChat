@@ -4,8 +4,8 @@ import {
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
-
-
+import { Button as MDButton } from 'react-native-paper';
+import { Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction } from 'react-native-paper';
 export default class ConversationListScreen extends Component {
   state = {
     conversations: [],
@@ -78,6 +78,15 @@ export default class ConversationListScreen extends Component {
   render() {
     return (
       <View>
+      <Toolbar>
+        <ToolbarBackAction
+          onPress={this._goBack}
+        />
+        <ToolbarContent
+          title="Conversations"
+        />
+        <ToolbarAction icon="person" onPress={() => {}} />
+        </Toolbar>
         {
           this.state.loading ? 
           <ActivityIndicator /> :
@@ -87,7 +96,9 @@ export default class ConversationListScreen extends Component {
             renderItem={this.renderConversation.bind(this)}
           />
         }
-        <Button title="Create Conversation" onPress={this.onCreateConversationPress.bind(this)} />
+        <MDButton raised onPress={this.onCreateConversationPress.bind(this)}>
+          Create Conversation
+        </MDButton>
         <Button title="Sign out" onPress={this.onLogoutPress.bind(this)} />
       </View>
     );

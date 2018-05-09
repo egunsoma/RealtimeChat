@@ -6,10 +6,13 @@ import { GiftedChat } from 'react-native-gifted-chat';
 import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
 import _ from 'lodash';
+import { Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction } from 'react-native-paper';
+
 
 export default class ConversationMessagesScreen extends Component {
   state = {
     messages: [],
+    conversation: {}
   }
 
   componentWillMount() {
@@ -19,6 +22,9 @@ export default class ConversationMessagesScreen extends Component {
       .orderBy('timestamp', 'desc')
       .limit(5)
       .onSnapshot(this.onCollectionUpdate.bind(this));
+    this.unsubscribe2 = firebase.firestore().collection('conversations')
+      .doc(this.props.conversationId)
+      .onSnapshot(this.onCollectionUpdate2.bind(this));
   }
 
   componentWillUnmount() {
@@ -60,6 +66,13 @@ export default class ConversationMessagesScreen extends Component {
    });
   }
 
+  onCollectionUpdate2(querySnapshot) {
+    const conversation = { ...querySnapshot.data() }
+    this.setState({ 
+      conversation
+   });
+  }
+
   onSend(messages = []) {
     // this.setState({
     //   messages: [messages[0], ...this.state.messages]
@@ -95,6 +108,16 @@ export default class ConversationMessagesScreen extends Component {
 
   render() {
     return (
+      <View style={{ flex: 1}}>
+      <Toolbar>
+        <ToolbarBackAction
+          onPress={() => Actions.pop()}
+        />
+        <ToolbarContent
+          title={this.state.conversation.name}
+        />
+        <ToolbarAction icon="settings" onPress={() => this.onRight()} />
+      </Toolbar>
       <GiftedChat
         messages={this.state.messages}
         onSend={messages => this.onSend(messages)}
@@ -107,6 +130,7 @@ export default class ConversationMessagesScreen extends Component {
           _id: firebase.auth().currentUser.uid,
         }}
       />
+      </View>
     )
   }
 }

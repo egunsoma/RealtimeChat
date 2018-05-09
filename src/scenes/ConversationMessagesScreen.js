@@ -121,11 +121,6 @@ export default class ConversationMessagesScreen extends Component {
       <GiftedChat
         messages={this.state.messages}
         onSend={messages => this.onSend(messages)}
-        renderChatFooter={() => {
-          return (
-            <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center' }}><Text>ASD</Text></TouchableOpacity>
-          )
-        }}
         user={{
           _id: firebase.auth().currentUser.uid,
         }}

@@ -5,7 +5,7 @@ import {
 import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
 import _ from 'lodash';
-import { Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction } from 'react-native-paper';
+import { Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction, FAB} from 'react-native-paper';
 
 
 export default class ConversationSettingsScreen extends Component {
@@ -66,7 +66,7 @@ export default class ConversationSettingsScreen extends Component {
 
   render() {
     return (
-      <View>
+      <View style={{flex:1}}>
       <Toolbar>
         <ToolbarBackAction
           onPress={() => Actions.pop()}
@@ -84,7 +84,11 @@ export default class ConversationSettingsScreen extends Component {
             renderItem={this.renderMember.bind(this)}
           />
         }
-      <Button title="Add User" onPress={() => Actions.conversation_add_user({ conversationId: this.props.conversationId})} />
+      <FAB
+        style={{ position: 'absolute', bottom: 16, right: 16}}
+        icon="person-add"
+        onPress={() => Actions.conversation_add_user({ conversationId: this.props.conversationId})}/>
+      {/* <Button title="Add User" onPress={() => Actions.conversation_add_user({ conversationId: this.props.conversationId})} /> */}
       <Button title="Leave Conversation" onPress={this.onLeaveButtonPress.bind(this)} />
     </View>
     );

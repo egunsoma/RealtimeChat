@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import {
- Text, View, Button, FlatList, ActivityIndicator
+ View, FlatList, ActivityIndicator
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
 import _ from 'lodash';
-import { Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction, FAB} from 'react-native-paper';
+import { Paragraph,Dialog, DialogActions, DialogContent, DialogTitle,Subheading,Divider, Caption, Text, Button,ListSection, ListItem, Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction, FAB} from 'react-native-paper';
 
 
 export default class ConversationSettingsScreen extends Component {
@@ -60,11 +60,33 @@ export default class ConversationSettingsScreen extends Component {
 
   renderMember({item}) {
     return (
-      <Text>{item.displayName}</Text>
+      // <ListItem
+      //   title={item.displayName}
+      //   icon="person"
+      // >
+      // </ListItem>
+
+      <View>
+        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', margin: 12}}>
+          <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start'}}>
+            <Text>{item.displayName}</Text>
+            <Caption>Online</Caption>
+          </View>
+          { item.key === firebase.auth().currentUser.uid && <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end'}}>
+            <Button raised onPress={this._showDialog}>Leave</Button>
+          </View>}
+        </View>
+        <Divider />
+      </View>
     ) 
   }
 
+  _showDialog = () => this.setState({ visible: true });
+  _hideDialog = () => this.setState({ visible: false });
+
   render() {
+    const { visible } = this.state;
+
     return (
       <View style={{flex:1}}>
       <Toolbar>
@@ -75,6 +97,7 @@ export default class ConversationSettingsScreen extends Component {
           title="Settings"
         />
       </Toolbar>
+      
         {
           this.state.loading ? 
           <ActivityIndicator /> :
@@ -82,6 +105,7 @@ export default class ConversationSettingsScreen extends Component {
             data={this.state.members}
             extraData={this.state}
             renderItem={this.renderMember.bind(this)}
+            ListHeaderComponent={<Subheading style={{ margin: 12 }}>Members</Subheading>}
           />
         }
       <FAB
@@ -89,7 +113,23 @@ export default class ConversationSettingsScreen extends Component {
         icon="person-add"
         onPress={() => Actions.conversation_add_user({ conversationId: this.props.conversationId})}/>
       {/* <Button title="Add User" onPress={() => Actions.conversation_add_user({ conversationId: this.props.conversationId})} /> */}
-      <Button title="Leave Conversation" onPress={this.onLeaveButtonPress.bind(this)} />
+      <Dialog
+           visible={visible}
+           onDismiss={this._hideDialog}
+        >
+          <DialogTitle>Leave Conversation</DialogTitle>
+          <DialogContent>
+            <Paragraph>
+            Do you really want to leave this conversation?
+            </Paragraph>
+          </DialogContent>
+          <DialogActions>
+          
+            <Button  primary onPress={this._hideDialog}>Cancel</Button>
+            
+            <Button raised primary onPress={this.onLeaveButtonPress.bind(this)}>Leave</Button>
+          </DialogActions>
+          </Dialog>
     </View>
     );
   }

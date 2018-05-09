@@ -5,7 +5,8 @@ import {
 import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
 import { Button as MDButton } from 'react-native-paper';
-import { Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction } from 'react-native-paper';
+import { Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction, FAB , Caption, Title, Divider, TouchableRipple} from 'react-native-paper';
+import moment from 'moment';
 export default class ConversationListScreen extends Component {
   state = {
     conversations: [],
@@ -71,17 +72,28 @@ export default class ConversationListScreen extends Component {
 
   renderConversation({item}) {
     return (
-      <Button title={item.lastMessage.data} onPress={this.onConversationPress.bind(this, item.key)} />
+      <TouchableRipple onPress={this.onConversationPress.bind(this, item.key)}>
+        <View>
+        <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'stretch', margin: 10}}>
+          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+          <Title>{item.name}</Title>
+          <Caption>{moment(item.lastMessage.timestamp).format("HH:mm")}</Caption>
+          </View>
+          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
+            <Caption>{item.lastMessage.data}</Caption>
+          </View>
+          
+        </View>
+        <Divider />
+        </View>
+      </TouchableRipple>
     ) 
   }
 
   render() {
     return (
-      <View>
+      <View style={{ flex: 1}}>
       <Toolbar>
-        <ToolbarBackAction
-          onPress={this._goBack}
-        />
         <ToolbarContent
           title="Conversations"
         />
@@ -96,10 +108,14 @@ export default class ConversationListScreen extends Component {
             renderItem={this.renderConversation.bind(this)}
           />
         }
-        <MDButton raised onPress={this.onCreateConversationPress.bind(this)}>
+          <FAB
+            style={{ position: 'absolute', bottom: 16, right: 16}}
+            icon="add"
+            onPress={this.onCreateConversationPress.bind(this)}/>
+        {/* <MDButton raised onPress={this.onCreateConversationPress.bind(this)}>
           Create Conversation
-        </MDButton>
-        <Button title="Sign out" onPress={this.onLogoutPress.bind(this)} />
+        </MDButton> */}
+        {/* <Button title="Sign out" onPress={this.onLogoutPress.bind(this)} /> */}
       </View>
     );
   }

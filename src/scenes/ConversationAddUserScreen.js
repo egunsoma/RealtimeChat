@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import {
- Text, View, Button, FlatList, ActivityIndicator, TextInput
+ View, FlatList, ActivityIndicator, TextInput
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
 import Queue from 'promise-queue';
-import { Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction , Searchbar} from 'react-native-paper';
+import { Button, Subheading, Divider, Text, Caption, Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction , Searchbar} from 'react-native-paper';
+import moment from 'moment';
 
 import _ from 'lodash';
 
@@ -17,6 +18,7 @@ export default class ConversationAddUserScreen extends Component {
     searchKey: '',
     searchResult: [],
     promiseQueue: new Queue(1, Infinity),
+    presenceInfo: {}    
   }
 
   componentWillMount() {
@@ -44,6 +46,9 @@ export default class ConversationAddUserScreen extends Component {
 
   componentWillUnmount() {
     this.unsubscribe();
+    _.forEach(this.state.presenceInfo, (value, key) => {
+      firebase.database().ref('/presence/' + key).off();
+    });
   }
 
   isMember(userId) {
@@ -67,6 +72,13 @@ export default class ConversationAddUserScreen extends Component {
     .then((querySnapshot) => {
       const searchResult = [];
       querySnapshot.forEach((doc) => {
+
+        firebase.database().ref('/presence/' + doc.id).on('value', (snapshot)  => {
+          this.setState({
+            presenceInfo: { ...this.state.presenceInfo, [doc.id]: snapshot.val()}
+          })
+        });
+
         const { name, lastMessage } = doc.data();
         const item = { 
           key: doc.id,
@@ -86,6 +98,7 @@ export default class ConversationAddUserScreen extends Component {
   }
 
   onAddButtonPress(userId) {
+    console.log('yaay', userId)
     const ref = firebase.firestore().collection('conversations').doc(this.props.conversationId);
      
     firebase.firestore().runTransaction(function(transaction) {
@@ -97,18 +110,32 @@ export default class ConversationAddUserScreen extends Component {
             transaction.update(ref, { members: newMembers });
         });
     })
-    
+  }
+
+  renderPresence(presenceData) {
+    const presenceInfo = presenceData || 'new_user';
+    if(presenceInfo === true) {
+      return <Caption>Online</Caption>;
+    } else if (presenceInfo === 'new_user') {
+      return <Caption>New User</Caption>;
+    } else {
+      return <Caption>{moment(presenceInfo).fromNow()}</Caption>
+    }
   }
 
   renderUser({item}) {
     return (
-      <View style={{ flexDirection: 'row', alignItems: 'center'}}>
-        <Text>{item.displayName}</Text>
-        {
-          this.isMember(item.key) ? 
-          <Text>Member</Text> :
-          <Button title="Add" onPress={this.onAddButtonPress.bind(this, item.key)} />
-        }
+      <View>
+        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', margin: 12}}>
+          <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start'}}>
+            <Text>{item.displayName}</Text>
+            {this.renderPresence(this.state.presenceInfo[item.key])}
+          </View>
+            <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end'}}>
+              {  this.isMember(item.key) ?  <Text>Member</Text> : <Button primary raised onPress={this.onAddButtonPress.bind(this, item.key)}>Add</Button>}
+            </View>
+        </View>
+        <Divider />
       </View>
     ) 
   }

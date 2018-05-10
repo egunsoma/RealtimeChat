@@ -14,9 +14,22 @@ export default class LoginScreen extends Component {
   }
 
   componentWillMount() {
+
+    
+
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         firebase.analytics().setUserId(firebase.auth().currentUser.uid);
+        var amOnline = firebase.database().ref('.info/connected');
+        var userRef = firebase.database().ref('presence/' + firebase.auth().currentUser.uid);
+         
+        amOnline.on('value', function(snapshot) {
+          if (snapshot.val()) {
+            userRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
+            userRef.set(true);
+          }
+        });
+
         Actions.conversation_list({ type: 'reset' });
       } else {
         this.setState({ loading: false });

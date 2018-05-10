@@ -7,13 +7,25 @@ import ConversationMessagesScreen from './src/scenes/ConversationMessagesScreen'
 import ConversationSettingsScreen from './src/scenes/ConversationSettingsScreen'
 import ConversationAddUserScreen from './src/scenes/ConversationAddUserScreen'
 import firebase from 'react-native-firebase';
-import { Provider as PaperProvider } from 'react-native-paper';
+import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+
+const theme = {
+  ...DefaultTheme,
+  roundness: 2,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#607D8B',
+    accent: '#4CAF50',
+  }
+};
 
 export default class App extends React.Component {
 
+
+
   render() {
     return (
-      <PaperProvider>
+      <PaperProvider theme={theme}>
         <Router>
           <Stack key="root">
             <Scene key="login" component={LoginScreen} initial title="Login"/>

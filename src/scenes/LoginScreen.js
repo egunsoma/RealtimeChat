@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import {
-    View, ActivityIndicator, Alert
- } from 'react-native';
+  View, ActivityIndicator, Alert
+} from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
-import { TextInput,Paragraph,Dialog, DialogActions, DialogContent, DialogTitle,Subheading,Divider, Caption, Text, Button,ListSection, ListItem, Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction, FAB} from 'react-native-paper';
- 
+import { TextInput, Paragraph, Dialog, DialogActions, DialogContent, DialogTitle, Subheading, Divider, Caption, Text, Button, ListSection, ListItem, Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction, FAB } from 'react-native-paper';
+
 export default class LoginScreen extends Component {
 
   state = {
@@ -18,17 +18,40 @@ export default class LoginScreen extends Component {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         firebase.analytics().setUserId(firebase.auth().currentUser.uid);
+
+        // Set user online presence in Realtime Database
         var amOnline = firebase.database().ref('.info/connected');
         var userRef = firebase.database().ref('presence/' + firebase.auth().currentUser.uid);
-         
-        amOnline.on('value', function(snapshot) {
+
+        amOnline.on('value', function (snapshot) {
           if (snapshot.val()) {
             userRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
             userRef.set(true);
           }
         });
 
-        Actions.conversation_list({ type: 'reset' });
+        firebase.messaging().getToken()
+          .then((token) => {
+            console.log('Device FCM Token: ', token);
+            return firebase.firestore().collection('users').doc(user.uid).update({
+              deviceToken: token
+            })
+          })
+          .then(() => {
+            // Redirect user to conversation list screen
+            Actions.conversation_list({ type: 'reset' });
+          })      
+          .catch((err) => {
+            this.setState({ loading: false });
+            Alert.alert(
+              'Error',
+              `${err.message}`,
+              [
+                { text: 'OK', onPress: () => console.log('OK Pressed') },
+              ],
+              { cancelable: false }
+            );
+          });
       } else {
         this.setState({ loading: false });
       }
@@ -39,7 +62,7 @@ export default class LoginScreen extends Component {
     this.setState({ loading: true });
 
     firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
-      .then(()=> {
+      .then(() => {
         console.log('login_email');
       })
       .catch((err) => {
@@ -59,7 +82,7 @@ export default class LoginScreen extends Component {
     this.setState({ loading: true });
 
     firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
-      .then((user)=> {
+      .then((user) => {
         firebase.firestore().collection('users').doc(user.uid).set({
           displayName: user.email
         })
@@ -83,34 +106,29 @@ export default class LoginScreen extends Component {
     }
     return (
 
-            <View style={{ flex: 1}}>
-                          <Toolbar>
-                      <ToolbarBackAction
-                        onPress={() => Actions.pop()}
-                      />
-                      <ToolbarContent
-                        title="Profile"
-                      />
-                    </Toolbar>
-              <View style={{  justifyContent: 'center', alignItems: 'stretch', margin: 12 }}
-              >
+      <View style={{ flex: 1 }}>
+        <Toolbar>
+          <ToolbarContent
+            title="Realtime Chat"
+          />
+        </Toolbar>
+        <View style={{ justifyContent: 'center', alignItems: 'stretch', margin: 12 }}>
+          <TextInput
+            label={'Email'}
+            onChangeText={(email) => this.setState({ email })}
+            value={this.state.email}
 
-                <TextInput
-                  label={'Email'}
-                  onChangeText={(email) => this.setState({ email })}
-                  value={this.state.email}
-                  
-                />
-                <TextInput
-                  label={'Password'}
-                  onChangeText={(password) => this.setState({ password })}
-                  value={this.state.password}
-                  secureTextEntry
-                />
-                <Button raised primary onPress={this.onLoginPress.bind(this)}>Login</Button>
-                <Button raised onPress={this.onRegisterPress.bind(this)}>Register</Button>
-              </View>
-          </View>
+          />
+          <TextInput
+            label={'Password'}
+            onChangeText={(password) => this.setState({ password })}
+            value={this.state.password}
+            secureTextEntry
+          />
+          <Button raised primary onPress={this.onLoginPress.bind(this)}>Login</Button>
+          <Button raised onPress={this.onRegisterPress.bind(this)}>Register</Button>
+        </View>
+      </View>
     );
   }
 }

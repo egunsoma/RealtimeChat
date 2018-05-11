@@ -19,29 +19,33 @@ export default class UserProfileScreen extends Component {
   }
 
   getUser() {
-    firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid).get().then((userDoc) => {
-      console.log(userDoc.data())
-      this.setState({
-        originalDisplayName: userDoc.data().displayName,
-        displayName: userDoc.data().displayName,
-        loading: false
-      })
+    firebase.firestore().collection('users')
+      .doc(firebase.auth().currentUser.uid).get()
+      .then((userDoc) => {
+        console.log(userDoc.data())
+        this.setState({
+          originalDisplayName: userDoc.data().displayName,
+          displayName: userDoc.data().displayName,
+          loading: false
+        })
     });
+  }
+
+  onSavePress() {
+    this.setState({loading: true})
+    firebase.firestore().collection('users')
+      .doc(firebase.auth().currentUser.uid).update({
+        displayName: this.state.displayName
+      })
+      .then(() => {
+        this.getUser()
+      });
   }
 
   onLogoutPress() {
     firebase.auth().signOut().then(() => {
       Actions.login({ type: 'reset' });
     })
-  }
-
-  onSavePress() {
-    this.setState({loading: true})
-    firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid).update({
-      displayName: this.state.displayName
-    }).then(() => {
-      this.getUser()
-    });
   }
 
   render() {

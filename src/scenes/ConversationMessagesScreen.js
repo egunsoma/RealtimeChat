@@ -74,10 +74,6 @@ export default class ConversationMessagesScreen extends Component {
   }
 
   onSend(messages = []) {
-    // this.setState({
-    //   messages: [messages[0], ...this.state.messages]
-    // })
-
     const cRef = firebase.firestore().collection('conversations')
       .doc(this.props.conversationId);
      

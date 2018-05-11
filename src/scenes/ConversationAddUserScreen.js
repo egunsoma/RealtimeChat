@@ -142,7 +142,7 @@ export default class ConversationAddUserScreen extends Component {
 
   render() {
     return (
-      <View>
+      <View style={{flex: 1}}>
       <Toolbar>
         <ToolbarBackAction
           onPress={() => Actions.pop()}

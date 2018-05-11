@@ -8,31 +8,30 @@ import ConversationSettingsScreen from './src/scenes/ConversationSettingsScreen'
 import ConversationAddUserScreen from './src/scenes/ConversationAddUserScreen'
 import firebase from 'react-native-firebase';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import UserProfileScreen from './src/scenes/UserProfileScreen';
 
 const theme = {
   ...DefaultTheme,
   roundness: 2,
   colors: {
     ...DefaultTheme.colors,
-    primary: '#607D8B',
-    accent: '#4CAF50',
+    primary: '#FFC107',
+    accent: '#03A9F4',
   }
 };
 
 export default class App extends React.Component {
-
-
-
   render() {
     return (
       <PaperProvider theme={theme}>
         <Router>
           <Stack key="root">
-            <Scene key="login" component={LoginScreen} initial title="Login"/>
+            <Scene key="login" component={LoginScreen} hideNavBar initial title="Login"/>
             <Scene key="conversation_list" component={ConversationListScreen} hideNavBar  title="ConversationListScreen"/>
             <Scene key="conversation_messages" component={ConversationMessagesScreen} hideNavBar rightTitle="Settings" onRight={() => Actions.refs.conversation_messages.onRight()} title="ConversationMessagesScreen"/>
             <Scene key="conversation_settings" component={ConversationSettingsScreen} hideNavBar title="ConversationSettingsScreen"/>
             <Scene key="conversation_add_user" component={ConversationAddUserScreen} hideNavBar title="ConversationAddUserScreen"/>
+            <Scene key="user_profile" component={UserProfileScreen} hideNavBar title="UserProfileScreen"/>
           </Stack>
         </Router>
       </PaperProvider>

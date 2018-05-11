@@ -1,22 +1,20 @@
 import React, { Component } from 'react';
 import {
-  Text, Button, View, ActivityIndicator, TextInput, Alert
+    View, ActivityIndicator, Alert
  } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
+import { TextInput,Paragraph,Dialog, DialogActions, DialogContent, DialogTitle,Subheading,Divider, Caption, Text, Button,ListSection, ListItem, Toolbar, ToolbarBackAction, ToolbarContent, ToolbarAction, FAB} from 'react-native-paper';
  
 export default class LoginScreen extends Component {
 
   state = {
-    email: ' ',
-    password: ' ',
+    email: '',
+    password: '',
     loading: true
   }
 
   componentWillMount() {
-
-    
-
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         firebase.analytics().setUserId(firebase.auth().currentUser.uid);
@@ -84,21 +82,35 @@ export default class LoginScreen extends Component {
       return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" /></View>
     }
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-      >
-        <TextInput
-          placeholder={'Email'}
-          onChangeText={(email) => this.setState({ email })}
-        />
-        <TextInput
-          placeholder={'Jelszó'}
-          onChangeText={(password) => this.setState({ password })}
-          secureTextEntry
-        />
-        <Button title="Login" onPress={this.onLoginPress.bind(this)} />
-        <Button title="Register" onPress={this.onRegisterPress.bind(this)} />
-        
-      </View>
+
+            <View style={{ flex: 1}}>
+                          <Toolbar>
+                      <ToolbarBackAction
+                        onPress={() => Actions.pop()}
+                      />
+                      <ToolbarContent
+                        title="Profile"
+                      />
+                    </Toolbar>
+              <View style={{  justifyContent: 'center', alignItems: 'stretch', margin: 12 }}
+              >
+
+                <TextInput
+                  label={'Email'}
+                  onChangeText={(email) => this.setState({ email })}
+                  value={this.state.email}
+                  
+                />
+                <TextInput
+                  label={'Password'}
+                  onChangeText={(password) => this.setState({ password })}
+                  value={this.state.password}
+                  secureTextEntry
+                />
+                <Button raised primary onPress={this.onLoginPress.bind(this)}>Login</Button>
+                <Button raised onPress={this.onRegisterPress.bind(this)}>Register</Button>
+              </View>
+          </View>
     );
   }
 }

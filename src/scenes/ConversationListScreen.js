@@ -11,7 +11,8 @@ import _ from 'lodash';
 export default class ConversationListScreen extends Component {
   state = {
     conversations: [],
-    loading: true
+    loading: true,
+    conversationName: ''
   }
   componentWillMount() {
     this.unsubscribe = firebase.firestore().collection('conversations')
@@ -45,11 +46,7 @@ export default class ConversationListScreen extends Component {
    });
   }
 
-  onLogoutPress() {
-    firebase.auth().signOut().then(() => {
-      Actions.login({ type: 'reset' });
-    })
-  }
+
 
   onCreateConversationPress() {
     const now = new Date().getTime()
@@ -97,7 +94,7 @@ export default class ConversationListScreen extends Component {
   }
 
   _showDialog = () => this.setState({ visible: true });
-  _hideDialog = () => this.setState({ visible: false });
+  _hideDialog = () => this.setState({ visible: false, conversationName: '' });
 
   render() {
     const { visible } = this.state;
@@ -107,7 +104,7 @@ export default class ConversationListScreen extends Component {
         <ToolbarContent
           title="Conversations"
         />
-        <ToolbarAction icon="person" onPress={() => {}} />
+        <ToolbarAction icon="person" onPress={() => Actions.user_profile()} />
         </Toolbar>
         {
           this.state.loading ? 
@@ -133,7 +130,7 @@ export default class ConversationListScreen extends Component {
           <DialogTitle>Create Conversation</DialogTitle>
           <DialogContent>
             <TextInput
-              label='Name'
+              label='Conversation Name'
               value={this.state.conversationName}
               onChangeText={conversationName => this.setState({ conversationName })}
             />

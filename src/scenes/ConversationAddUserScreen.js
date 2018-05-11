@@ -98,7 +98,6 @@ export default class ConversationAddUserScreen extends Component {
   }
 
   onAddButtonPress(userId) {
-    console.log('yaay', userId)
     const ref = firebase.firestore().collection('conversations').doc(this.props.conversationId);
      
     firebase.firestore().runTransaction(function(transaction) {
